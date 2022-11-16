@@ -41,6 +41,11 @@ jobs:
         with:
           enable_cache: true
 
+      # Hack to fix broken file paths due to page not being hosted at /
+      # Seems like the font paths in CSS don't respect baseurl in _config.yml
+      - name: Patch font paths in CSS
+        run: sed -i "s/\/assets\/fonts\//\/better-uci-docs\/assets\/fonts\//g" _site/assets/css/style.css
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
 
