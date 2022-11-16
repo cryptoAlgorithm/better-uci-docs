@@ -36,8 +36,10 @@ jobs:
           bundler-cache: true
           ruby-version: '3.1.2'
 
-      - name: Build with Jekyll
-        run: jekyll build
+      - name: Build Site with Jekyll
+        uses: limjh16/jekyll-action-ts@v2
+        with:
+          enable_cache: true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
