@@ -3,6 +3,8 @@
 A tremendously improved version of the [only UCI docs
 I could find](http://wbec-ridderkerk.nl/html/UCIProtocol.html).
 
+These docs are built by Jekyll, and are hosted on GitHub Pages. [View the docs here](https://cryptoalgorithm.github.io/better-uci-docs/).
+
 ## What's Improved
 
 * Fixed grammatical errors and weird formatting

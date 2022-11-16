@@ -11,7 +11,7 @@ layout: page
   ul, ol { margin-left: 0; } 
 </style>
 
-The UCI protocol as publicised by Stefan-Meyer Kahlen ([ShredderChess](http://www.shredderchess.com/)):
+_The UCI protocol as publicised by Stefan-Meyer Kahlen ([ShredderChess](http://www.shredderchess.com/))
 
 * The specification is independent of the operating system. For Windows,  
   the engine is a normal exe file, either a console or a "real" windows application.
