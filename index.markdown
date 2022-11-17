@@ -12,6 +12,9 @@ layout: page
     margin-left: 0;
     padding-inline-start: 1.5rem;
   }
+  .highlight {
+    font-weight: normal;
+  }
 </style>
 
 _The UCI protocol as publicised by Stefan-Meyer Kahlen ([ShredderChess](http://www.shredderchess.com/))_
