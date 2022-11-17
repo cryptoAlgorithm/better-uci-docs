@@ -31,8 +31,9 @@ _The UCI protocol as publicised by Stefan-Meyer Kahlen ([ShredderChess](http://w
   also all commands the GUI receives should end with `\n`.
 
   Note: `\n` can be `0x0c` or `0x0a0c` or any combination depending on your OS.
-  If you use Engine und GUI in the same OS this should be no problem if you cummunicate in text mode,
-  but be aware of this when for example running a Linux engine in a Windows GUI.
+  If you use the engine and GUI in the same OS there should be no problem if you
+  communicate in text mode, but be aware of this when for example running a Linux engine 
+  in a Windows GUI.
 
 * The engine will always be in forced mode which means it should never start calculating
   or pondering without receiving a `go` command first.
@@ -52,7 +53,7 @@ Move format:
 ------------
 
 The move format is in long algebraic notation.
-A nullmove from the Engine to the GUI should be sent as `0000`.
+A null move from the Engine to the GUI should be sent as `0000`.
 Examples: `e2e4`, `e7e5`, `e1g1` (white short castling), `e7e8q` (for promotion)
 
 GUI to engine:
@@ -67,7 +68,7 @@ These are all the command the engine gets from the interface.
   to tell the engine to switch to uci mode.
   After receiving the uci command the engine must identify itself with the `id` command and send `option` commands to tell the GUI which engine settings the engine supports if any.
   After that the engine should send `uciok` to acknowledge the uci mode.
-  If no uciok is sent within a certain time period, the engine task will be killed by the GUI.
+  If no `uciok` is sent within a certain time period, the engine task will be killed by the GUI.
 
 * `debug [ on | off ]`
 
@@ -94,11 +95,11 @@ These are all the command the engine gets from the interface.
   This is sent to the engine when the user wants to change the internal parameters
   of the engine. For the `button` type no value is needed.
   One string will be sent for each parameter and this will only be sent when the engine is waiting.
-  The name of the option in  should not be case-sensitive and can inludes spaces like also the value.
+  The name of the option in  should not be case-sensitive and can include spaces like also the value.
   The substrings `value` and `name` should be avoided in  and  to allow unambiguous parsing,
   for example do not use "draw value".
   Here are some strings for the example below:
-   ```
+  ```
   setoption name Nullmove value true\n
   setoption name Selectivity value 3\n setoption name Style value Risky\n
   setoption name Clear Hash\n
@@ -107,16 +108,24 @@ These are all the command the engine gets from the interface.
 * `register`
 
   This is the command to try to register an engine or to tell the engine that registration
-  will be done later. This command should always be sent if the engine   has sent `registration error`
+  will be done later. This command should always be sent if the engine has sent `registration error`
   at program startup.
   The following tokens are allowed:
-  * `later` - the user doesn't want to register the engine now
-  * `name` - the engine should be registered with the name
-  * `code` - the engine should be registered with the code
+  * `later`
+
+    The user doesn't want to register the engine now
+  * `name`
+
+    The engine should be registered with the name
+  * `code`
+
+    The engine should be registered with the code
+
     Example:
-   ```
-  register later
-register name Stefan MK code 4359874324 ```
+    ```
+    register later
+    register name Stefan MK code 4359874324
+    ```
 * `ucinewgame`
 
   This is sent to the engine when the next search (started with `position` and `go`) will be from
@@ -128,11 +137,12 @@ register name Stefan MK code 4359874324 ```
   As the engine's reaction to `ucinewgame` can take some time the GUI should always send `isready`
   after `ucinewgame` to wait for the engine to finish its operation.
 
-* `position [fen | startpos]  moves ....`
+* `position [fen | startpos] moves ...`
 
-  Set up the position described in fenstring on the internal board and
-  play the moves on the internal chess board.
-  if the game was played  from the start position the string `startpos` will be sent
+  Set up the position described in a FEN string on the internal board or
+  play the specified moves on the internal chess board.
+  If the game was played  from the start position the string `startpos` will be sent
+
   Note: no `new` command is needed. However, if this position is from a different game than
   the last position sent to the engine, the GUI should have sent an `ucinewgame` in between.
 
@@ -230,41 +240,43 @@ Engine to GUI:
 
 * `copyprotection`
 
-  This is needed for copyprotected engines. After the uciok command the engine can tell the GUI,
+  This is needed for copy-protected engines. After the `uciok` command the engine can tell the GUI,
   that it will check the copy protection now. This is done by `copyprotection checking`.
   If the check is ok the engine should send `copyprotection ok`, otherwise `copyprotection error`.
   If there is an error the engine should not function properly but should not quit alone.
   If the engine reports `copyprotection error`, the GUI should not use this engine
   and display an error message instead!
   The code in the engine can look like this
-```c
-TellGUI("copyprotection checking\n");
-// ... check the copy protection here ...
-if (ok) TellGUI("copyprotection ok\n");
-else TellGUI("copyprotection error\n");
-```
+  ```c
+  TellGUI("copyprotection checking\n");
+  // ... check the copy protection here ...
+  if (ok) TellGUI("copyprotection ok\n");
+  else TellGUI("copyprotection error\n");
+  ```
 * `registration`
 
-This is needed for engines that need a username and/or a code to function with all features.
-Analog to the `copyprotection` command the engine can send `registration checking`
-after the uciok command followed by either `registration ok` or `registration error`.
-Also after every attempt to register the engine it should answer with `registration checking`
-and then either `registration ok` or `registration error`.
-In contrast to the `copyprotection` command, the GUI can use the engine after the engine has
-reported an error, but should inform the user that the engine is not properly registered
-and might not use all its features.
-In addition the GUI should offer to open a dialog to
-enable registration of the engine. To try to register an engine the GUI can send
-the `register` command.
-The GUI has to always answer with the `register` command   if the engine sends `registration error`
-at engine startup (this can also be done with `register later`)
-and tell the user somehow that the engine is not registered.
-This way the engine knows that the GUI can deal with the registration procedure and the user
-will be informed that the engine is not properly registered.
+  This is needed for engines that need a username and/or a code to function with all features.
+  Analog to the `copyprotection` command the engine can send `registration checking`
+  after the `uciok` command followed by either `registration ok` or `registration error`.
+  Also, after every attempt to register the engine it should answer with `registration checking`
+  and then either `registration ok` or `registration error`.
+  In contrast to the `copyprotection` command, the GUI can use the engine after the engine has
+  reported an error, but should inform the user that the engine is not properly registered
+  and might not use all its features.
+  In addition, the GUI should offer to open a dialog to
+  enable registration of the engine
+  
+  To try to register an engine the GUI can send
+  the `register` command.
+  The GUI has to always answer with the `register` command if the engine sends `registration error`
+  at engine startup (this can also be done with `register later`)
+  and tell the user somehow that the engine is not registered.
+  This way the engine knows that the GUI can deal with the registration procedure and the user
+  will be informed that the engine is not properly registered.
 
 * `info`
 
-  the engine wants to send infos to the GUI. This should be done whenever one of the info has changed.
+  For the engine to send infos to the GUI. This should be done whenever one of the info has changed.
   The engine can send only selected infos and multiple infos can be sent with one info command, e.g.
   ```
   info currmove e2e4 currmovenumber 1
@@ -274,59 +286,76 @@ will be informed that the engine is not properly registered.
   ```
   info depth 2 score cp 214 time 1242 nodes 2124 nps 34928 pv e2e4 e7e5 g1f3
   ```
-  I suggest to start sending `currmove`, `currmovenumber`, `currline` and `refutation` only after one second
-  to avoid too much traffic.
+  It is suggested to start sending `currmove`, `currmovenumber`, `currline` and `refutation`
+  only after one second to avoid too much traffic.
   Additional info:
   * `depth`
-    search depth in plies
+
+    Search depth in plies
   * `seldepth`
-    selective search depth in plies,
-    if the engine sends seldepth there must also a `depth` be present in the same string.
+
+    Selective search depth in plies, must always be sent together with `depth`
   * `time`
-    the time searched in ms, this should be sent together with the pv.
+
+    The time searched in ms, this should be sent together with the pv.
   * `nodes`
-    x nodes searched, the engine should send this info regularly
-  * `pv  ...`
-    the best line found
+
+    `x` nodes searched, the engine should send this info regularly
+  * `pv <move>...`
+
+    The best move(s) found
   * `multipv`
-    this for the multi pv mode.
-    for the best move/pv add `multipv 1` in the string when you send the pv.
-    in k-best mode always send all k variants in k strings together.
+
+    This for the multi pv mode.
+    For the best move/pv add `multipv 1` in the string when you send the pv.
+    In k-best mode always send all k variants in k strings together.
   * `score`
     * `cp` - the score from the engine's point of view in centipawns.
     * `mate` - mate in y moves, not plies.
-      If the engine is getting mated use negativ values for y.
+      If the engine is getting mated use negative values for y.
     * `lowerbound` - the score is just a lower bound.
     * `upperbound` - the score is just an upper bound.
   * `currmove`
-    currently searching this move
+
+    Currently searching this move
   * `currmovenumber`
-    currently searching mov number x, for the first move x should be 1 not 0.
+
+    Currently searching mov number x, for the first move x should be 1 not 0.
   * `hashfull`
-    the hash is x permill full, the engine should send this info regularly
+
+    The hash is `x` permill full, the engine should send this info regularly
   * `nps`
-    x nodes per second searched, the engine should send this info regularly
+
+    The engine is searching at a rate of `x` nodes per second, this info should be sent regularly
   * `tbhits`
-    x positions where found in the endgame table bases
+
+    `x` positions where found in the endgame table bases
   * `cpuload`
-    the cpu usage of the engine is x permill.
+
+    The cpu usage of the engine is `x` permill.
   * `string`
-    any string str which will be displayed be the engine,
-    if there is a string command the rest of the line will be interpreted as .
-  * `refutation ...`
-    move  is refuted by the line  ... , i can be any number >= 1.
-    Example: after move d1h5 is searched, the engine can send
-    `info refutation d1h5 g6h5`
-    if g6h5 is the best answer after d1h5 or if g6h5 refutes the move d1h5.
-    if there is norefutation for d1h5 found, the engine should just send
+
+    Any string str which the engine would like the GUI to display,
+    the rest of the line will be interpreted as the string to display
+  * `refutation <move> ...[refutation]`
+
+    `<move>` is refuted by the move `<refutation>`.
+
+    Example: after move d1h5 is searched, the engine can send  `info refutation d1h5 g6h5`
+    if g6h5 is the best answer after `d1h5` is `g6h5` or if `g6h5` refutes the move `d1h5`.
+    If there is no refutation for d1h5 found, the engine should just send
     `info refutation d1h5`
-    The engine should only send this if the option `UCI_ShowRefutations` is set to true.
+
+    **Note**: The engine should only send this if the option `UCI_ShowRefutations` is set to true.
   * `currline ...`
-    this is the current line the engine is calculating.  is the number of the cpu if
-    the engine is running on more than one cpu.  = 1,2,3....
-    if the engine is just using one cpu,  can be omitted.
-    If  is greater than 1, always send all k lines in k strings together.
-    The engine should only send this if the option `UCI_ShowCurrLine` is set to true.
+
+    This is the current line the engine is calculating.  is the number of the cpu if
+    the engine is running on more than one cpu.
+    If the engine is just using one cpu, this can be omitted.
+    There is more than one current line, the engine should always send all k lines in k strings
+    together. 
+
+    **Note**: The engine should only send this if the option `UCI_ShowCurrLine` is set to true.
 
 * `option`
 
@@ -337,11 +366,13 @@ will be informed that the engine is not properly registered.
   Note that not every option needs to appear in this dialog as some options like
   `Ponder`, `UCI_AnalyseMode`, etc. are better handled elsewhere or are set automatically.
   If the user wants to change some settings, the GUI will send a `setoption` command to the engine.
-  Note that the GUI need not send the setoption command when starting the engine for every option if
-  it doesn't want to change the default value.
-  For all allowed combinations see the example below,
-  as some combinations of this tokens don't make sense.
-  One string will be sent for each parameter.
+
+  Note that the GUI need not send the `setoption` command when starting the engine for every option
+  if it doesn't want to change the default value.
+  For all allowed combinations see the example below, as some combinations of these tokens don't
+  make sense.
+
+  One `option` string will be sent for each parameter.
   * `name`
     The option has the name id.
     Certain options have a fixed value, which means that the semantics of this option is fixed.
@@ -367,45 +398,47 @@ will be informed that the engine is not properly registered.
       This is the size in MB for the cache for the nalimov table bases
       These last two options should also be present in the initial options exchange dialog
       when the engine is booted if the engine supports it
-    * `Ponder`, type check
+    * `Ponder`, type `check`
 
-      this means that the engine is able to ponder.
+      This means that the engine is able to ponder.
       The GUI will send this whenever pondering is possible or not.
       Note: The engine should not start pondering on its own if this is enabled, this option is only
       needed because the engine might change its time management algorithm when pondering is allowed.
-    * `OwnBook`, type check
+    * `OwnBook`, type `check`
 
-      this means that the engine has its own book which is accessed by the engine itself.
+      This means that the engine has its own book which is accessed by the engine itself.
       if this is set, the engine takes care of the opening book and the GUI will never
       execute a move out of its book for the engine. If this is set to false by the GUI,
       the engine should not access its own book.
-    * `MultiPV`, type spin
+    * `MultiPV`, type `spin`
 
-      the engine supports multi best line or k-best mode. the default value is 1
-    * `UCI_ShowCurrLine`, type check, should be false by default,
-      the engine can show the current line it is calculating. see `info currline` above.
-    * `UCI_ShowRefutations`, type check, should be false by default,
-      the engine can show a move and its refutation in a line. see `info refutations` above.
-    * `UCI_LimitStrength`, type check, should be false by default
+      The engine supports multi best line or k-best mode. the default value is 1
+    * `UCI_ShowCurrLine`, type `check`, should be `false` by default
+
+      The engine can show the current line it is calculating. see `info currline` above.
+    * `UCI_ShowRefutations`, type `check`, should be `false` by default
+
+      The engine can show a move and its refutation in a line. see `info refutations` above.
+    * `UCI_LimitStrength`, type `check`, should be `false` by default
 
       The engine is able to limit its strength to a specific Elo number,
       This should always be implemented together with `UCI_Elo`.
-    * `UCI_Elo`, type spin
+    * `UCI_Elo`, type `spin`
 
       The engine can limit its strength in Elo within this interval.
       If UCI_LimitStrength is set to false, this value should be ignored.
       If UCI_LimitStrength is set to true, the engine should play with this specific strength.
       This should always be implemented together with `UCI_LimitStrength`.
-    * `UCI_AnalyseMode`, type check
+    * `UCI_AnalyseMode`, type `check`
 
       The engine wants to behave differently when analysing or playing a game.
       For example when playing it can use some kind of learning.
       This is set to false if the engine is playing a game, otherwise it is true.
-    * `UCI_Opponent`, type string
+    * `UCI_Opponent`, type `string`
 
       With this command the GUI can send the name, title, elo and if the engine is playing a human
       or computer to the engine.
-      The format of the string has to be `[GM|IM|FM|WGM|WIM|none] [|none] [computer|human]`
+      The format of the string has to be `[GM|IM|FM|WGM|WIM|none] [<elo>|none] [computer|human]`
       Example:
       ```
       setoption name UCI_Opponent value GM 2800 human Gary Kasparow
@@ -416,29 +449,30 @@ will be informed that the engine is not properly registered.
     The type of the option.
     There are 5 different types of options the engine can send:
 
-    |   Type  |  Description                               |
-    |--------|---------------------------------------------|
-    | `check` | a checkbox that can either be true or false |
-    | `spin`  | a spin wheel that can be an integer in a certain range |
-    | `combo` | a combo box that can have different predefined strings as a value |
-    | `button` | a button that can be pressed to send a command to the engine |
-    | `string` | a text field that has a string as a value, an empty string has the value ""|
+    | Type     | Description                                                                 |
+    |----------|-----------------------------------------------------------------------------|
+    | `check`  | a checkbox that can either be true or false                                 |
+    | `spin`   | a spin wheel that can be an integer in a certain range                      |
+    | `combo`  | a combo box that can have different predefined strings as a value           |
+    | `button` | a button that can be pressed to send a command to the engine                |
+    | `string` | a text field that has a string as a value, an empty string has the value "" |
   * `default`
     The default value of this parameter
-    * `min`
-      the minimum value of this parameter
-    * `max`
-      the maximum value of this parameter
-    * `var`
-      a predefined value of this parameter
+    * `min` - the minimum value of this parameter
+    * `max` - the maximum value of this parameter
+    * `var` - a predefined value of this parameter
 
   Example:
 
   Here are 5 strings for each of the 5 possible types of options
-  ```
-  option name Nullmove type check default true\n
-  option name Selectivity type spin default 2 min 0 max 4\n option name Style type combo default Normal var Solid var Normal var Risky\n option name NalimovPath type string default c:\\n option name Clear Hash type button\n
-  ```
+
+  | Type     | Example Option                                                               |
+  |----------|------------------------------------------------------------------------------|
+  | `check`  | `option name Nullmove type check default true`                               |
+  | `spin`   | `option name Selectivity type spin default 2 min 0 max 4`                    |
+  | `combo`  | `option name Style type combo default Normal var Solid var Normal var Risky` |
+  | `button` | `option name Clear Hash type button`                                         |
+  | `string` | `option name NalimovPath type string default c:\chess\tb`                    |
 
 Example:
 --------
