@@ -8,7 +8,10 @@ layout: page
 
 <!-- TODO: Find a better way around this -->
 <style>
-  ul, ol { margin-left: 0; }
+  ul, ol {
+    margin-left: 0;
+    padding-inline-start: 1.5rem;
+  }
 </style>
 
 _The UCI protocol as publicised by Stefan-Meyer Kahlen ([ShredderChess](http://www.shredderchess.com/))_
